@@ -3,7 +3,7 @@ from win32api import GetFileVersionInfo, LOWORD, HIWORD
 
 dir_path = "c:\TFSDev\PAM\MainTrunk"
 nw_path = "\\\\iaai.com/EnterpriseServices/EVM/Staging/IHSData1"
-install_path = "\\\\qevm-web01/EVM"
+install_path = "\\\\qevm-web02/EVM"
 def findDLLS():
         for root, dirs, files in os.walk(install_path): #Get path from CSV file or JSON
                 for file in files:
