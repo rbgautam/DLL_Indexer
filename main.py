@@ -6,7 +6,7 @@ from datetime import datetime
 #dir_path = "c:\TFSDev\PAM\MainTrunk"
 #nw_path = "\\\\iaai.com/EnterpriseServices/EVM/Staging/IHSData1"
 install_path = "\\\\qevm-web02/EVM"
-output_csv = 'dll_file'
+output_csv = 'dllfile'
 def findDLLS():
         output_csv_new = init_csv(output_csv)
         write_to_csv(output_csv_new,"","","",True)
@@ -20,7 +20,7 @@ def findDLLS():
                                 write_to_csv(output_csv_new,file,file_version,file_path,False)
 def init_csv(output_csv):
         now  = datetime.now()
-        date_time = now.strftime("_%m%d%Y%H_%M_%S")
+        date_time = now.strftime("_%m%d%Y%H%M%S")
         output_version = output_csv + date_time+".csv"
         return output_version      
 
