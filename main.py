@@ -7,30 +7,40 @@ from datetime import datetime
 #nw_path = "\\\\iaai.com/EnterpriseServices/EVM/Staging/IHSData1"
 #install_path = "\\\\qevm-web02/EVM"
 install_path = "\\\\qtowmweb02/Websites"
+search_path_list= []
 output_csv = 'dllfile'
 def get_settings():
+        
         with open('settings.csv',mode='r') as csv_file:
                 csv_reader = csv.DictReader(csv_file)
                 line_count = 0
                 for row in csv_reader:
                         inspath = row["Install_path"]
-                        #print(inspath)
-                        findDLLS(str(inspath))
+                        search_path_list.append(inspath)
                         line_count = line_count +1
-                #print(line_count)
+        #for srcpath in search_path_list:
+                #print(srcpath)
+                #findDLLS(str(srcpath),output_csv_new)
+        #findDLLS(search_path_list[1],output_csv)
+        findDLLS(install_path,output_csv)
+        
 
-def findDLLS(install_path):
-        print(install_path)
+def findDLLS(install_path,output_csv):
         output_csv_new = init_csv(output_csv)
         write_to_csv(output_csv_new,"","","",True)
-        for root, dirs, files in os.walk(install_path): #Get path from CSV file or JSON
-                for file in files:
-                        if file.endswith(".dll") and not ignoreFile(file): #make the extension configurable (more than one allowed)
-                                file_path = os.path.join(root, file)
-                                file_version = ".".join ([str (i) for i in get_version_number (file_path)])
-                                print (file_version)
-                                print(file_path)
-                                write_to_csv(output_csv_new,file,file_version,file_path,False)
+        try:
+                print(install_path)
+                print(output_csv_new)
+                for root, dirs, files in os.walk(str(install_path)): #Get path from CSV file or JSON
+                        for file in files:
+                                if file.endswith(".dll") and not ignoreFile(file): #make the extension configurable (more than one allowed)
+                                        file_path = os.path.join(root, file)
+                                        file_version = ".".join ([str (i) for i in get_version_number (file_path)])
+                                        print (file_version)
+                                        print(file_path)
+                                        write_to_csv(output_csv_new,file,file_version,file_path,False)
+        except expression as identifier:
+                print('Error')
 def init_csv(output_csv):
         now  = datetime.now()
         date_time = now.strftime("_%m%d%Y%H%M%S")
@@ -63,5 +73,5 @@ def write_to_csv(csv_fileName,dll_name, dll_version, dll_path, Is_Header ):
                 if(Is_Header):
                         writer.writerow(["Dll Name", "Dll Version", "Dll Path"])
 
-findDLLS(install_path)
-#get_settings()
+#findDLLS(install_path,output_csv)
+get_settings()
