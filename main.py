@@ -5,9 +5,22 @@ from datetime import datetime
 
 #dir_path = "c:\TFSDev\PAM\MainTrunk"
 #nw_path = "\\\\iaai.com/EnterpriseServices/EVM/Staging/IHSData1"
-install_path = "\\\\qevm-web02/EVM"
+#install_path = "\\\\qevm-web02/EVM"
+install_path = "\\\\qtowmweb02/Websites"
 output_csv = 'dllfile'
-def findDLLS():
+def get_settings():
+        with open('settings.csv',mode='r') as csv_file:
+                csv_reader = csv.DictReader(csv_file)
+                line_count = 0
+                for row in csv_reader:
+                        inspath = row["Install_path"]
+                        #print(inspath)
+                        findDLLS(str(inspath))
+                        line_count = line_count +1
+                #print(line_count)
+
+def findDLLS(install_path):
+        print(install_path)
         output_csv_new = init_csv(output_csv)
         write_to_csv(output_csv_new,"","","",True)
         for root, dirs, files in os.walk(install_path): #Get path from CSV file or JSON
@@ -50,4 +63,5 @@ def write_to_csv(csv_fileName,dll_name, dll_version, dll_path, Is_Header ):
                 if(Is_Header):
                         writer.writerow(["Dll Name", "Dll Version", "Dll Path"])
 
-findDLLS()
+findDLLS(install_path)
+#get_settings()
