@@ -32,19 +32,19 @@ def findDLLS(install_path,output_csv_new):
 def parseDirs(folderpath):
         folders = [f.path for f in os.scandir(folderpath) if f.is_dir()]
         for folder in folders:
-                # get txt files from folder path
+                # get dll files from folder path
                 files = [f.path for f in os.scandir(folder) if f.name.endswith(".dll")]
                 for f_name in files:
                         print(f_name)
 
 def walkDirs(install_path,output_csv_new):
-        for root, dirs, files in os.walk(str(install_path)): #Get path from CSV file or JSON
+        for root, dirs, files in os.walk(str(install_path)):
                         for file in files:
-                                if file.endswith(".dll") and not ignoreFile(file): #make the extension configurable (more than one allowed)
+                                if file.endswith(".dll") and not ignoreFile(file): #TODO make the extension configurable (more than one allowed)
                                         file_path = os.path.join(root, file)
                                         file_version = ".".join ([str (i) for i in get_version_number (file_path)])
-                                        print (file_version)
-                                        print(file_path)
+                                        #print (file_version)
+                                        #print(file_path)
                                         write_to_csv(output_csv_new,file,file_version,file_path,install_path,False)
 def init_csv(output_csv):
         now  = datetime.now()
@@ -69,13 +69,11 @@ def get_version_number (filename):
 
 def write_to_csv(csv_fileName,dll_name, dll_version, dll_path,search_path, Is_Header ):
         with open(csv_fileName, mode='a',newline='') as dll_file:
-                #fieldnames = ['DLL Name', 'Version', 'Path']
-                #writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                fieldnames = ["DLL Name", "DLL Version", "DLL Path","Server Path"]
                 writer = csv.writer(dll_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                #writer.writeheader()
                 if(not Is_Header):
                         writer.writerow([dll_name, dll_version, dll_path,search_path])
                 if(Is_Header):
-                        writer.writerow(["DLL Name", "DLL Version", "DLL Path","Server Path"])
+                        writer.writerow(fieldnames)
 
 get_settings()
