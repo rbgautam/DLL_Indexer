@@ -3,10 +3,6 @@ from win32api import GetFileVersionInfo, LOWORD, HIWORD, GetFileAttributes
 import csv
 from datetime import datetime
 
-#dir_path = "c:\TFSDev\PAM\MainTrunk"
-#nw_path = "\\\\iaai.com/EnterpriseServices/EVM/Staging/IHSData1"
-#install_path = "\\\\qevm-web02/EVM"
-#install_path = "\\\\qtowmweb02/Websites"
 search_path_list= []
 output_csv = 'DLL_Catalog'
 def get_settings():
@@ -22,14 +18,13 @@ def get_settings():
         for srcpath in search_path_list:
                 print(srcpath)
                 findDLLS(str(srcpath),output_csv_new)
-        #findDLLS(search_path_list[0],output_csv)
-        #findDLLS(install_path,output_csv)
+       
         
 
 def findDLLS(install_path,output_csv_new):
         try:
-                print(install_path)
-                print(output_csv_new)
+                #print(install_path)
+                #print(output_csv_new)
                 walkDirs(install_path,output_csv_new)
         except expression as identifier:
                 print('Error')
@@ -71,7 +66,7 @@ def get_version_number (filename):
    ms = info['FileVersionMS']
    ls = info['FileVersionLS']
    return HIWORD (ms), LOWORD (ms), HIWORD (ls), LOWORD (ls)
-#'dll_file.csv'
+
 def write_to_csv(csv_fileName,dll_name, dll_version, dll_path,search_path, Is_Header ):
         with open(csv_fileName, mode='a',newline='') as dll_file:
                 #fieldnames = ['DLL Name', 'Version', 'Path']
@@ -83,5 +78,4 @@ def write_to_csv(csv_fileName,dll_name, dll_version, dll_path,search_path, Is_He
                 if(Is_Header):
                         writer.writerow(["DLL Name", "DLL Version", "DLL Path","Server Path"])
 
-#findDLLS(install_path,output_csv)
 get_settings()
