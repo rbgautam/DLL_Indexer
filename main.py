@@ -22,9 +22,11 @@ def get_settings():
                         search_path_list.append(inspath)
                         line_count = line_count +1
         for srcpath in search_path_list:
-                print(srcpath)
+                print("\n"+srcpath)
                 findDLLS(str(srcpath),output_csv_new,bar_pos_count)
-        
+        print('\nTotal files : ' +str(len(file_list)))
+        print('\nWriting to DB..')
+        catalog_files(file_list,output_csv_new)
        
         
 
@@ -33,8 +35,7 @@ def findDLLS(install_path,output_csv_new,bar_pos_count):
                 #print(install_path)
                 #print(output_csv_new)
                 walkDirs(install_path,output_csv_new,bar_pos_count)
-                print('Total files : ' +str(len(file_list)))
-                catalog_files(file_list,output_csv_new)
+                
         except expression as identifier:
                 print('Error')
 
@@ -48,8 +49,7 @@ def parseDirs(folderpath):
 
 def walkDirs(install_path,output_csv_new,bar_pos_count):
         for root, dirs, files in os.walk(str(install_path)):
-                        counter = 1
-                        file_count = len(files)
+                        #file_count = len(files)
                         #print('Filecount ' + str(file_count))
                         for file in files:
                                 if file.endswith(".dll") and not ignoreFile(file): #TODO make the extension configurable (more than one allowed)
@@ -60,23 +60,27 @@ def walkDirs(install_path,output_csv_new,bar_pos_count):
                                         #write_to_csv(output_csv_new,file,file_version,file_path,install_path,False)
                                         file_tuple = (file,file_version,file_path,install_path)
                                         file_list.append(file_tuple)
-                                
+                                        
                                 update_progress_rotate(bar_pos_count)
                                 #time.sleep(0.1)
                                 bar_pos_count = bar_pos_count +1
                                 if bar_pos_count == 4:
                                       bar_pos_count = 0  
                                 
-                                #print(counter)
+                                
                         
                         
 
 def catalog_files(file_list,output_csv_new):
+        
+        counter = 0
         for i in tqdm(range(len(file_list))):
                 file_tup = file_list[i]
                 #print(file_tup[0])
                 write_to_csv(output_csv_new,file_tup[0],file_tup[1],file_tup[2],file_tup[3],False)
                 time.sleep(0.05)
+                counter = counter + 1
+        #print(counter)
 
                         
 def init_csv(output_csv):
@@ -132,7 +136,7 @@ def update_progress_rotate(bar_count):
         bar_pos = ["|","/","--","\\"]
         prog_text =["Indexing in progress .","Indexing in progress ..","Indexing in progress ..."," "]
         text = str(prog_text[bar_count])
-        sys.stdout.write("\r"+text+" ")
+        sys.stdout.write("\r "+text+" ")
         sys.stdout.flush()
         
         
