@@ -1,16 +1,17 @@
 import os
-from win32api import GetFileVersionInfo, LOWORD, HIWORD
+from win32api import GetFileVersionInfo, LOWORD, HIWORD, GetFileAttributes
 import csv
 from datetime import datetime
 
 #dir_path = "c:\TFSDev\PAM\MainTrunk"
 #nw_path = "\\\\iaai.com/EnterpriseServices/EVM/Staging/IHSData1"
 #install_path = "\\\\qevm-web02/EVM"
-install_path = "\\\\qtowmweb02/Websites"
+#install_path = "\\\\qtowmweb02/Websites"
 search_path_list= []
-output_csv = 'dllfile'
+output_csv = 'DLL_Catalog'
 def get_settings():
-        
+        output_csv_new = init_csv(output_csv)
+        write_to_csv(output_csv_new,"","","","",True)
         with open('settings.csv',mode='r') as csv_file:
                 csv_reader = csv.DictReader(csv_file)
                 line_count = 0
@@ -18,29 +19,38 @@ def get_settings():
                         inspath = row["Install_path"]
                         search_path_list.append(inspath)
                         line_count = line_count +1
-        #for srcpath in search_path_list:
-                #print(srcpath)
-                #findDLLS(str(srcpath),output_csv_new)
-        #findDLLS(search_path_list[1],output_csv)
-        findDLLS(install_path,output_csv)
+        for srcpath in search_path_list:
+                print(srcpath)
+                findDLLS(str(srcpath),output_csv_new)
+        #findDLLS(search_path_list[0],output_csv)
+        #findDLLS(install_path,output_csv)
         
 
-def findDLLS(install_path,output_csv):
-        output_csv_new = init_csv(output_csv)
-        write_to_csv(output_csv_new,"","","",True)
+def findDLLS(install_path,output_csv_new):
         try:
                 print(install_path)
                 print(output_csv_new)
-                for root, dirs, files in os.walk(str(install_path)): #Get path from CSV file or JSON
+                walkDirs(install_path,output_csv_new)
+        except expression as identifier:
+                print('Error')
+
+def parseDirs(folderpath):
+        folders = [f.path for f in os.scandir(folderpath) if f.is_dir()]
+        for folder in folders:
+                # get txt files from folder path
+                files = [f.path for f in os.scandir(folder) if f.name.endswith(".dll")]
+                for f_name in files:
+                        print(f_name)
+
+def walkDirs(install_path,output_csv_new):
+        for root, dirs, files in os.walk(str(install_path)): #Get path from CSV file or JSON
                         for file in files:
                                 if file.endswith(".dll") and not ignoreFile(file): #make the extension configurable (more than one allowed)
                                         file_path = os.path.join(root, file)
                                         file_version = ".".join ([str (i) for i in get_version_number (file_path)])
                                         print (file_version)
                                         print(file_path)
-                                        write_to_csv(output_csv_new,file,file_version,file_path,False)
-        except expression as identifier:
-                print('Error')
+                                        write_to_csv(output_csv_new,file,file_version,file_path,install_path,False)
 def init_csv(output_csv):
         now  = datetime.now()
         date_time = now.strftime("_%m%d%Y%H%M%S")
@@ -62,16 +72,16 @@ def get_version_number (filename):
    ls = info['FileVersionLS']
    return HIWORD (ms), LOWORD (ms), HIWORD (ls), LOWORD (ls)
 #'dll_file.csv'
-def write_to_csv(csv_fileName,dll_name, dll_version, dll_path, Is_Header ):
+def write_to_csv(csv_fileName,dll_name, dll_version, dll_path,search_path, Is_Header ):
         with open(csv_fileName, mode='a',newline='') as dll_file:
                 #fieldnames = ['DLL Name', 'Version', 'Path']
                 #writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
                 writer = csv.writer(dll_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 #writer.writeheader()
                 if(not Is_Header):
-                        writer.writerow([dll_name, dll_version, dll_path])
+                        writer.writerow([dll_name, dll_version, dll_path,search_path])
                 if(Is_Header):
-                        writer.writerow(["Dll Name", "Dll Version", "Dll Path"])
+                        writer.writerow(["DLL Name", "DLL Version", "DLL Path","Server Path"])
 
 #findDLLS(install_path,output_csv)
 get_settings()
