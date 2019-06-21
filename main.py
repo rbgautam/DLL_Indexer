@@ -2,13 +2,19 @@ import os
 from win32api import GetFileVersionInfo, LOWORD, HIWORD, GetFileAttributes
 import csv
 from datetime import datetime
+import time, sys
+from tqdm import tqdm
+
 
 search_path_list= []
+file_list =[]
 output_csv = 'DLL_Catalog'
+bar_pos_count = 0
 def get_settings():
+        global bar_pos_count
         output_csv_new = init_csv(output_csv)
         write_to_csv(output_csv_new,"","","","",True)
-        with open('settings.csv',mode='r') as csv_file:
+        with open('app.config',mode='r') as csv_file:
                 csv_reader = csv.DictReader(csv_file)
                 line_count = 0
                 for row in csv_reader:
@@ -17,15 +23,18 @@ def get_settings():
                         line_count = line_count +1
         for srcpath in search_path_list:
                 print(srcpath)
-                findDLLS(str(srcpath),output_csv_new)
+                findDLLS(str(srcpath),output_csv_new,bar_pos_count)
+        
        
         
 
-def findDLLS(install_path,output_csv_new):
+def findDLLS(install_path,output_csv_new,bar_pos_count):
         try:
                 #print(install_path)
                 #print(output_csv_new)
-                walkDirs(install_path,output_csv_new)
+                walkDirs(install_path,output_csv_new,bar_pos_count)
+                print('Total files : ' +str(len(file_list)))
+                catalog_files(file_list,output_csv_new)
         except expression as identifier:
                 print('Error')
 
@@ -37,15 +46,39 @@ def parseDirs(folderpath):
                 for f_name in files:
                         print(f_name)
 
-def walkDirs(install_path,output_csv_new):
+def walkDirs(install_path,output_csv_new,bar_pos_count):
         for root, dirs, files in os.walk(str(install_path)):
+                        counter = 1
+                        file_count = len(files)
+                        #print('Filecount ' + str(file_count))
                         for file in files:
                                 if file.endswith(".dll") and not ignoreFile(file): #TODO make the extension configurable (more than one allowed)
                                         file_path = os.path.join(root, file)
                                         file_version = ".".join ([str (i) for i in get_version_number (file_path)])
                                         #print (file_version)
                                         #print(file_path)
-                                        write_to_csv(output_csv_new,file,file_version,file_path,install_path,False)
+                                        #write_to_csv(output_csv_new,file,file_version,file_path,install_path,False)
+                                        file_tuple = (file,file_version,file_path,install_path)
+                                        file_list.append(file_tuple)
+                                
+                                update_progress_rotate(bar_pos_count)
+                                #time.sleep(0.1)
+                                bar_pos_count = bar_pos_count +1
+                                if bar_pos_count == 4:
+                                      bar_pos_count = 0  
+                                
+                                #print(counter)
+                        
+                        
+
+def catalog_files(file_list,output_csv_new):
+        for i in tqdm(range(len(file_list))):
+                file_tup = file_list[i]
+                #print(file_tup[0])
+                write_to_csv(output_csv_new,file_tup[0],file_tup[1],file_tup[2],file_tup[3],False)
+                time.sleep(0.05)
+
+                        
 def init_csv(output_csv):
         now  = datetime.now()
         date_time = now.strftime("_%m%d%Y%H%M%S")
@@ -76,4 +109,35 @@ def write_to_csv(csv_fileName,dll_name, dll_version, dll_path,search_path, Is_He
                 if(Is_Header):
                         writer.writerow(fieldnames)
 
+def update_progress(progress):
+    barLength = 100 # Modify this to change the length of the progress bar
+    status = ""
+    if isinstance(progress, int):
+        progress = float(progress)
+    if not isinstance(progress, float):
+        progress = 0
+        status = "error: progress var must be float\r\n"
+    if progress < 0:
+        progress = 0
+        status = "Halt...\r\n"
+    if progress >= 1:
+        progress = 1
+        status = "Done...\r\n"
+    block = int(round(barLength*progress))
+    text = "\rPercent: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), progress*100, status)
+    sys.stdout.write(text)
+    sys.stdout.flush()
+
+def update_progress_rotate(bar_count):
+        bar_pos = ["|","/","--","\\"]
+        prog_text =["Indexing in progress .","Indexing in progress ..","Indexing in progress ..."," "]
+        text = str(prog_text[bar_count])
+        sys.stdout.write("\r"+text+" ")
+        sys.stdout.flush()
+        
+        
+
+def show_progress():
+        for i in tqdm(range(10)):
+                time.sleep(1)
 get_settings()
