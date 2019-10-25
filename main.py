@@ -4,16 +4,21 @@ import csv
 from datetime import datetime
 import time, sys
 from tqdm import tqdm
-
+import pyodbc 
+from datetime import date
+#\\iaai.com\tfs-builds\FieldOps
+#\\iaai.com\tfs-builds 
 
 search_path_list= []
 file_list =[]
 output_csv = 'DLL_Catalog'
 bar_pos_count = 0
+conn = None
 def get_settings():
         global bar_pos_count
+        connect_to_Sql_Server()
         output_csv_new = init_csv(output_csv)
-        write_to_csv(output_csv_new,"","","","",True)
+        #write_to_csv(output_csv_new,"","","","",True)
         with open('app.config',mode='r') as csv_file:
                 csv_reader = csv.DictReader(csv_file)
                 line_count = 0
@@ -27,6 +32,7 @@ def get_settings():
         print('\nTotal files : ' +str(len(file_list)))
         print('\nWriting to DB..')
         catalog_files(file_list,output_csv_new)
+
        
         
 
@@ -72,12 +78,14 @@ def walkDirs(install_path,output_csv_new,bar_pos_count):
                         
 
 def catalog_files(file_list,output_csv_new):
-        
+        now  = datetime.now()
         counter = 0
         for i in tqdm(range(len(file_list))):
                 file_tup = file_list[i]
                 #print(file_tup[0])
-                write_to_csv(output_csv_new,file_tup[0],file_tup[1],file_tup[2],file_tup[3],False)
+                #write_to_csv(output_csv_new,file_tup[0],file_tup[1],file_tup[2],file_tup[3],False)
+                #file,file_version,file_path,install_path
+                insert_into_sql(file_tup[0],file_tup[1],file_tup[2],'',file_tup[3],now)
                 time.sleep(0.05)
                 counter = counter + 1
         #print(counter)
@@ -144,4 +152,26 @@ def update_progress_rotate(bar_count):
 def show_progress():
         for i in tqdm(range(10)):
                 time.sleep(1)
+
+def connect_to_Sql_Server():
+        global conn 
+        conn = pyodbc.connect('Driver={SQL Server};'
+                        'Server=QCON16DB01;'
+                        'Database=ThirdPartydlldetails;'
+                        'Trusted_Connection=yes;')
+       
+              
+       
+def insert_into_sql( dllName, dllVersion, dllPath, applicationName, applicationServerPath,dateStr):
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO dbo.DLLInfo( DLLName, DLLVersion, DLLPath,ApplicationName, ApplicationServerPath, CreateDateTime, UpdateUserDetailId, UpdateDateTime ) VALUES (?,?,?,?,?,?,?,?)",dllName,dllVersion,dllPath,applicationName,applicationServerPath,dateStr,'0',dateStr)
+        cursor.commit()
+
+def  show_data_from_sql():
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM dbo.DLLInfo with (nolock)')
+        for row in cursor:
+                print(row)
+
 get_settings()
+#connect_to_Sql_Server()
