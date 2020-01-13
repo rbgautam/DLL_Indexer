@@ -53,6 +53,7 @@ def parseDirs(folderpath):
                 for f_name in files:
                         print(f_name)
 
+
 def walkDirs(install_path,output_csv_new,bar_pos_count):
         for root, dirs, files in os.walk(str(install_path)):
                         #file_count = len(files)
