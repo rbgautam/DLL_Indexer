@@ -7,3 +7,16 @@ pip install tqdm
 
 pip install pyInstaller
 pyinstaller --onefile main.py
+
+Database connection only works upto Pythin 3.7.2
+pip install pyodbc 
+
+
+USE ThirdPartydlldetails
+Select * from   dbo.DLLInfo d          with (NOLOCK)   
+
+USE CASES
+----------
+Dll version comapre during release
+Check for oldest verion of the dlls
+Can be use to scan exe file names
