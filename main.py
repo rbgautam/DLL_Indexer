@@ -36,7 +36,7 @@ def get_settings():
                 
         print('\nTotal files : ' +str(len(file_list)))
         print('\nWriting to DB..')
-        # catalog_files(file_list,output_csv_new)
+        catalog_files(file_list,output_csv_new)
 
        
 def ReadScanDirs(bar_pos_count):
