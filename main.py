@@ -6,6 +6,7 @@ import time, sys
 from tqdm import tqdm
 import pyodbc 
 from datetime import date
+from FindDirToScan import GetScanDirs
 #\\iaai.com\tfs-builds\FieldOps
 #\\iaai.com\tfs-builds 
 
@@ -18,7 +19,8 @@ def get_settings():
         global bar_pos_count
         connect_to_Sql_Server()
         output_csv_new = init_csv(output_csv)
-        #write_to_csv(output_csv_new,"","","","",True)
+        
+        write_to_csv(output_csv_new,"","","","",True)
         with open('app.config',mode='r') as csv_file:
                 csv_reader = csv.DictReader(csv_file)
                 line_count = 0
@@ -27,23 +29,34 @@ def get_settings():
                         search_path_list.append(inspath)
                         line_count = line_count +1
         for srcpath in search_path_list:
-                print("\n"+srcpath)
-                findDLLS(str(srcpath),output_csv_new,bar_pos_count)
+                print("srcpath",srcpath)
+                GetScanDirs(srcpath)
+                #Once folderlist created call finddlls for each
+                ReadScanDirs(bar_pos_count) 
+                
         print('\nTotal files : ' +str(len(file_list)))
         print('\nWriting to DB..')
-        catalog_files(file_list,output_csv_new)
+        # catalog_files(file_list,output_csv_new)
 
        
-        
+def ReadScanDirs(bar_pos_count):
+        print('read scan')
+        with open('scan.csv',mode='r') as csv_file:
+                readCSV = csv.reader(csv_file, delimiter=',')
+                for row in readCSV:
+                        
+                        print("row",str(row)[1:-1])
+                        findDLLS(str(row)[1:-1],bar_pos_count)
 
-def findDLLS(install_path,output_csv_new,bar_pos_count):
+def findDLLS(install_path,bar_pos_count):
+        print('fnd dll')
         try:
-                #print(install_path)
+                print(install_path[3:-1])
                 #print(output_csv_new)
-                walkDirs(install_path,output_csv_new,bar_pos_count)
+                walkDirs(install_path[3:-1],bar_pos_count)
                 
-        except expression as identifier:
-                print('Error')
+        except Exception as error:
+                print('Error',error)
 
 def parseDirs(folderpath):
         folders = [f.path for f in os.scandir(folderpath) if f.is_dir()]
@@ -54,10 +67,16 @@ def parseDirs(folderpath):
                         print(f_name)
 
 
-def walkDirs(install_path,output_csv_new,bar_pos_count):
-        for root, dirs, files in os.walk(str(install_path)):
+def walkDirs(install_path,bar_pos_count):
+        
+        
+        print('walkdir',install_path)
+        # install_path ="\\\\iaai.com/tfs-builds/Buyer/AC.APC.Release/APC__2019.11.21_20191112.1"
+        # install_path =  '\\\\iaai.com/tfs-builds/Buyer/AC.APC.Release/APC__2019.11.21_20191112.1'
+        try:
+                for root, dirs, files in os.walk(str(install_path)):
                         #file_count = len(files)
-                        #print('Filecount ' + str(file_count))
+                        print('Root: ', root)
                         for file in files:
                                 if file.endswith(".dll") and not ignoreFile(file): #TODO make the extension configurable (more than one allowed)
                                         file_path = os.path.join(root, file)
@@ -72,8 +91,11 @@ def walkDirs(install_path,output_csv_new,bar_pos_count):
                                 #time.sleep(0.1)
                                 bar_pos_count = bar_pos_count +1
                                 if bar_pos_count == 4:
-                                      bar_pos_count = 0  
-                                
+                                        bar_pos_count = 0 
+                 
+        except Exception as error:
+                print(error) 
+                        
                                 
                         
                         
@@ -108,10 +130,15 @@ def ignoreFile(file):
 
 
 def get_version_number (filename):
-   info = GetFileVersionInfo (filename, "\\")
-   ms = info['FileVersionMS']
-   ls = info['FileVersionLS']
-   return HIWORD (ms), LOWORD (ms), HIWORD (ls), LOWORD (ls)
+        try:
+                info = GetFileVersionInfo (filename, "\\")
+                ms = info['FileVersionMS']
+                ls = info['FileVersionLS']
+                return HIWORD (ms), LOWORD (ms), HIWORD (ls), LOWORD (ls)
+        except Exception as error:
+                print(error)
+                pass     
+   
 
 def write_to_csv(csv_fileName,dll_name, dll_version, dll_path,search_path, Is_Header ):
         with open(csv_fileName, mode='a',newline='') as dll_file:
