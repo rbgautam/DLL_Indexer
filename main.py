@@ -20,7 +20,7 @@ def get_settings():
         connect_to_Sql_Server()
         output_csv_new = init_csv(output_csv)
         
-        write_to_csv(output_csv_new,"","","","",True)
+        # write_to_csv(output_csv_new,"","","","",True)
         with open('app.config',mode='r') as csv_file:
                 csv_reader = csv.DictReader(csv_file)
                 line_count = 0
