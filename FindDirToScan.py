@@ -24,25 +24,30 @@ def GetScanDirs(fileshare_path):
                 #file_version = ".".join ([str (i) for i in get_version_number (file_path)])
                 attrib = os.path.getsize(root)
                 modified_time = os.path.getmtime(root)
-                print("root",root,"latest_file =",latest_file , ", mod time =",modified_time)
                 if modified_time>latest_modified_time:
+                    # print("latest_file =",latest_file,", mod time =",modified_time)
                     latest_modified_time = modified_time
                     latest_file = currStr
 
                 
                 
                 if dist  < 0.80:
-                    latest_modified_time = modified_time
+                    latest_modified_time = 0
                     dataArr=[]
-                    root = root.replace("\\"+data,"/"+data)
-                    dataArr.append(root)
-                    print("dist gt 0.80",root,latest_file)
+                    # root = root.replace("\\"+data,"/"+data)
+                    tempStr = latest_file[2:]
+                    tempStr = tempStr.replace("\\","/")
+                    tempStr ="\\\\"+tempStr
+                    dataArr.append(tempStr)
+                    print("dist gt 0.80 ",", ",tempStr)
                     write_to_csv(dataArr,"scan",False)
                 lastStr = currStr  
     dataArr=[]
-    print(data)
-    latest_file = latest_file.replace("\\","/")
-    dataArr.append(latest_file)
+    # print(data)
+    latest_file =  latest_file[2:]
+    tempStr = tempStr.replace("\\","/")
+    tempStr ="\\\\"+tempStr
+    dataArr.append(tempStr)
     write_to_csv(dataArr,"scan",False)       
 
 def similar(a,b):

@@ -32,7 +32,7 @@ def get_settings():
                 print("srcpath",srcpath)
                 GetScanDirs(srcpath)
                 #Once folderlist created call finddlls for each
-                #ReadScanDirs(bar_pos_count) 
+                ReadScanDirs(bar_pos_count) 
                 
         print('\nTotal files : ' +str(len(file_list)))
         print('\nWriting to DB..')
