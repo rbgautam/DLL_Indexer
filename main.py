@@ -22,6 +22,7 @@ def get_settings():
         
         # write_to_csv(output_csv_new,"","","","",True)
         with open('app.config',mode='r') as csv_file:
+                
                 csv_reader = csv.DictReader(csv_file)
                 line_count = 0
                 for row in csv_reader:

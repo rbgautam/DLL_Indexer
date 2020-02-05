@@ -10,6 +10,7 @@ def GetScanDirs(fileshare_path):
     latest_modified_time = 0.0
     latest_file =""
     data = ""
+    ignore_dir = True
     for root, dirs, files in os.walk(str(fileshare_path)):
         File_count = len(files)
         top_folder_pos = root.find(".Release")
@@ -28,8 +29,6 @@ def GetScanDirs(fileshare_path):
                     # print("latest_file =",latest_file,", mod time =",modified_time)
                     latest_modified_time = modified_time
                     latest_file = currStr
-
-                
                 
                 if dist  < 0.80:
                     latest_modified_time = 0
@@ -40,7 +39,9 @@ def GetScanDirs(fileshare_path):
                     tempStr ="\\\\"+tempStr
                     dataArr.append(tempStr)
                     print("dist gt 0.80 ",", ",tempStr)
-                    write_to_csv(dataArr,"scan",False)
+                    if ignore_dir == False:
+                        write_to_csv(dataArr,"scan",False)
+                    ignore_dir = False
                 lastStr = currStr  
     dataArr=[]
     # print(data)
