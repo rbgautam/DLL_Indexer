@@ -78,6 +78,7 @@ def walkDirs(install_path,bar_pos_count):
                 for root, dirs, files in os.walk(str(install_path)):
                         #file_count = len(files)
                         print('Root: ', root)
+                        #TODO: ignore if root contains _PublishedWebsites
                         for file in files:
                                 if file.endswith(".dll") and not ignoreFile(file): #TODO make the extension configurable (more than one allowed)
                                         file_path = os.path.join(root, file)

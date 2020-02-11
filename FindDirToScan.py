@@ -38,18 +38,12 @@ def GetScanDirs(fileshare_path):
                     tempStr = tempStr.replace("\\","/")
                     tempStr ="\\\\"+tempStr
                     dataArr.append(tempStr)
-                    print("dist gt 0.80 ",", ",tempStr)
+                    print("dist gt 0.80 =",dist,", ",tempStr)
                     if ignore_dir == False:
                         write_to_csv(dataArr,"scan",False)
                     ignore_dir = False
                 lastStr = currStr  
-    dataArr=[]
-    # print(data)
-    latest_file =  latest_file[2:]
-    tempStr = tempStr.replace("\\","/")
-    tempStr ="\\\\"+tempStr
-    dataArr.append(tempStr)
-    write_to_csv(dataArr,"scan",False)       
+     
 
 def similar(a,b):
     return SequenceMatcher(None,a,b).ratio()
