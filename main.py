@@ -20,15 +20,7 @@ def get_settings():
         connect_to_Sql_Server()
         output_csv_new = init_csv(output_csv)
         
-        # write_to_csv(output_csv_new,"","","","",True)
-        with open('app.config',mode='r') as csv_file:
-                
-                csv_reader = csv.DictReader(csv_file)
-                line_count = 0
-                for row in csv_reader:
-                        inspath = row["Install_path"]
-                        search_path_list.append(inspath)
-                        line_count = line_count +1
+        get_data_from_config(search_path_list)
         for srcpath in search_path_list:
                 print("srcpath",srcpath)
                 GetScanDirs(srcpath)
@@ -88,7 +80,7 @@ def walkDirs(install_path,bar_pos_count):
                                         #write_to_csv(output_csv_new,file,file_version,file_path,install_path,False)
                                         file_tuple = (file,file_version,file_path,install_path)
                                         file_list.append(file_tuple)
-                                        
+                                print(file)
                                 update_progress_rotate(bar_pos_count)
                                 #time.sleep(0.1)
                                 bar_pos_count = bar_pos_count +1
@@ -110,6 +102,7 @@ def catalog_files(file_list,output_csv_new):
                 #print(file_tup[0])
                 #write_to_csv(output_csv_new,file_tup[0],file_tup[1],file_tup[2],file_tup[3],False)
                 #file,file_version,file_path,install_path
+                #TODO: Add applicationname
                 insert_into_sql(file_tup[0],file_tup[1],file_tup[2],'',file_tup[3],now)
                 time.sleep(0.05)
                 counter = counter + 1
@@ -123,7 +116,7 @@ def init_csv(output_csv):
         return output_version      
 
 def ignoreFile(file):
-        ignore_list =['IAAI','SYSTEM','MICROSOFT'] #get ignorelist from config or csv
+        ignore_list =['IAAI','SYSTEM','MICROSOFT','ENTITYFRAMEWORK'] #get ignorelist from config or csv
         #ignore_flag =False
         for l in ignore_list:
                 if file.upper().find(l.upper()) > -1:
@@ -184,11 +177,18 @@ def show_progress():
                 time.sleep(1)
 
 def connect_to_Sql_Server():
-        global conn 
-        conn = pyodbc.connect('Driver={SQL Server};'
-                        'Server=QCON16DB01;'
-                        'Database=ThirdPartydlldetails;'
-                        'Trusted_Connection=yes;')
+        global conn
+        driver = 'SQL Server'
+        server = 'QCON16DB01'
+        db = 'ThirdPartydlldetails'
+        user= 'DEVICE'
+        password='device@123'
+
+        # conn = pyodbc.connect('Driver={SQL Server};'
+        #                 'Server=QCON16DB01;'
+        #                 'Database=ThirdPartydlldetails;'
+        #                 'Trusted_Connection=yes;')
+        conn = pyodbc.connect('driver={%s};server=%s;database=%s;uid=%s;pwd=%s' % ( driver, server, db, user, password ) )
        
               
        
@@ -202,6 +202,16 @@ def  show_data_from_sql():
         cursor.execute('SELECT * FROM dbo.DLLInfo with (nolock)')
         for row in cursor:
                 print(row)
+
+def  get_data_from_config(dllPath):
+        connect_to_Sql_Server()
+        cursor = conn.cursor()
+        key = 'DLLPath'
+        cursor.execute('SELECT * FROM dbo.config with (nolock) where ConfigKey = ?',key)
+        for row in cursor:
+                search_path_list.append(row.ConfigValue)
+                print(row.ConfigValue)
+        
 
 get_settings()
 #connect_to_Sql_Server()

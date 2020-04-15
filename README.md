@@ -11,9 +11,8 @@ pyinstaller --onefile main.py
 Database connection only works upto Pythin 3.7.2
 pip install pyodbc 
 
-
 USE ThirdPartydlldetails
-Select * from   dbo.DLLInfo d          with (NOLOCK)   
+Select * from   dbo.DLLInfo d  with (NOLOCK) ORDER BY CreateDateTime desc
 
 USE CASES
 ----------
