@@ -103,12 +103,23 @@ def catalog_files(file_list,output_csv_new):
                 #write_to_csv(output_csv_new,file_tup[0],file_tup[1],file_tup[2],file_tup[3],False)
                 #file,file_version,file_path,install_path
                 #TODO: Add applicationname
+                
                 insert_into_sql(file_tup[0],file_tup[1],file_tup[2],'',file_tup[3],now)
                 time.sleep(0.05)
                 counter = counter + 1
         #print(counter)
 
-                        
+def getAppName(dllPath):
+        if dllPath.find('tfs-builds/FieldOps')>-1:
+                return 'ASAP'
+        if dllPath.find('tfs-builds/EBiz')>-1:
+                return 'EBiz'
+        if dllPath.find('tfs-builds/Buyer')>-1:
+                return 'Buyer'
+        if dllPath.find('tfs-builds/Provider')>-1:
+                return 'Provider'
+        
+
 def init_csv(output_csv):
         now  = datetime.now()
         date_time = now.strftime("_%m%d%Y%H%M%S")
@@ -194,6 +205,7 @@ def connect_to_Sql_Server():
        
 def insert_into_sql( dllName, dllVersion, dllPath, applicationName, applicationServerPath,dateStr):
         cursor = conn.cursor()
+        applicationName= getAppName(dllPath)
         cursor.execute("INSERT INTO dbo.DLLInfo( DLLName, DLLVersion, DLLPath,ApplicationName, ApplicationServerPath, CreateDateTime, UpdateUserDetailId, UpdateDateTime ) VALUES (?,?,?,?,?,?,?,?)",dllName,dllVersion,dllPath,applicationName,applicationServerPath,dateStr,'0',dateStr)
         cursor.commit()
 
