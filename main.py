@@ -110,14 +110,12 @@ def catalog_files(file_list,output_csv_new):
         #print(counter)
 
 def getAppName(dllPath):
-        if dllPath.find('tfs-builds/FieldOps')>-1:
-                return 'ASAP'
-        if dllPath.find('tfs-builds/EBiz')>-1:
-                return 'EBiz'
-        if dllPath.find('tfs-builds/Buyer')>-1:
-                return 'Buyer'
-        if dllPath.find('tfs-builds/Provider')>-1:
-                return 'Provider'
+        pathSplit = dllPath.split('/')
+        appName = pathSplit[3];
+        #print(appName)
+        for ignoreWords in ('.MainTrunk','.Release','.Development','.Master'):
+                appName = appName.replace(ignoreWords,' ')
+        return appName
         
 
 def init_csv(output_csv):
